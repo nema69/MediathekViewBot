@@ -2,6 +2,7 @@ import requests
 import mediathekWeb
 import argparse
 import util
+import download as dl
 
 # Globals
 TMDB_API_KEY = "632ca26bdf69f230197d4a063ec62f10"
@@ -9,18 +10,19 @@ OMDB_API_KEY = "ddac1be6"
 JELLYFIN_API_KEY = "5ddd91b4e53b430a9efae52655d60f20"
 JELLYFIN_USER_ID = "1d5044ab79154b2f8a548ba9ede2aa2a"
 
+validChannels = ["ard", "srf", "arte", "zdf", "zdfneo"]
+
 # Parse CLI Arguments
 parser = argparse.ArgumentParser(prog="MediathekViewBot",
                                  description="Scans MediathekView for films and checks their rating using TMDB. Generates a file with urls to the films matching the filter criteria.")
                                  
 parser.add_argument("-v", "--verbose", action="store_true")
 parser.add_argument("-s", "--size")
-parser.add_argument("-c", "--channel")
+parser.add_argument("-c", "--channel", choices=validChannels,help="Auswahl des zu durchsuchenden Kanals.", default="ard")
 parser.add_argument("-t", "--topic")
 parser.add_argument("-r", "--min_rating")
 parser.add_argument("-p", "--min_popularity")
-
-
+parser.add_argument("-o", "--output_path")
 
 def deduplicate_list(inputList, verbose = False):
     deduplicatedList = []
@@ -126,15 +128,7 @@ def cullMovies(movie_list, min_rating = 7.5, min_popularity = 5.0, verbose=False
     print(f"{len(movie_list)-len(culledMovies)} von {len(movie_list)} Filme aussortiert.")
     return culledMovies
 
-def printMovies(movieList):
-    for movie in movieList:
-        print(f"Mediathek Titel: {movie.get("title")}")
-        print(f"TMDB Titel:      {movie.get("matched_title")}")
-        print(f"Original Titel:  {movie.get("original_title")}")
-        print(f"Bewertung:       {movie.get("rating")}")
-        print(f"Beliebtheit:     {movie.get("popularity")}")
-        print(f"Link:            {movie.get("url_video_hd")}")
-        print("-----------------------------------------------------------")
+
 
 def writeLinkList(movieList, filename="videoURLlist.txt"):
     try:
@@ -222,11 +216,7 @@ if __name__ == "__main__":
 }
     search_config = search_config_default
     #check channel arg
-    validChannels =["ard", "srf", "arte", "zdf", "zdfneo"]
-    if args.channel.lower() not in validChannels:
-        print("Kein gültiger Kanal übergeben. Verwende Standard \"ARD\"")
-    else:
-        search_config["channel"] = args.channel.lower()
+    search_config["channel"] = args.channel.lower()
 
     #check topic arg
     if args.topic:
@@ -262,6 +252,9 @@ if __name__ == "__main__":
     moviesRated = process_movies(deduplicate_list(deduplicatedList), TMDB_API_KEY, verbose = args.verbose)
     moviesCulled = cullMovies(moviesRated, min_rating=min_rating, min_popularity=min_popularity, verbose=args.verbose)
     newToJelly = checkJellyfin(moviesCulled, "https://jellyfin.lsarebhan.de", JELLYFIN_API_KEY, JELLYFIN_USER_ID, verbose=True)
-    writeLinkList(newToJelly)
-
     
+    userList = []
+    for movie in newToJelly:
+        if(util.userConfirm(movie)):
+            userList.append(movie)
+    writeLinkList(userList)

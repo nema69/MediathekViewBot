@@ -3,6 +3,7 @@ import re
 def printMovie(movieDict):
     layout = [
             ("Titel",       "title",           ""),
+            ("TMDB Titel",  "matched_title",   ""),
             ("Original",    "original_title",  ""), # Falls vorhanden
             ("Jahr",        "year",            ""),
             ("Thema",       "topic",           ""),
@@ -35,6 +36,16 @@ def printMovie(movieDict):
     
     print("═" * 80 + "\n")
 
+    # def printMovies(movieList):
+    # for movie in movieList:
+    #     print(f"Mediathek Titel: {movie.get("title")}")
+    #     print(f"TMDB Titel:      {movie.get("matched_title")}")
+    #     print(f"Original Titel:  {movie.get("original_title")}")
+    #     print(f"Bewertung:       {movie.get("rating")}")
+    #     print(f"Beliebtheit:     {movie.get("popularity")}")
+    #     print(f"Link:            {movie.get("url_video_hd")}")
+    #     print("-----------------------------------------------------------")
+
 
 def cleanTitle(title, cleaning_rules=None, verbose = False):
     """
@@ -61,3 +72,13 @@ def cleanTitle(title, cleaning_rules=None, verbose = False):
         cleaned["title"] = cleaned["title"].strip()
     
     return cleaned
+
+def userConfirm(movie):
+    printMovie(movie)
+    print("Film herunterladen? (y/N)")
+    ans = input()
+    
+    if ans.lower() == "y":
+        return True
+    else:
+        return False
