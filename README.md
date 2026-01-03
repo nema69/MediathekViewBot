@@ -8,8 +8,8 @@ The file of links can be used with programs such as yt-dlp to download the video
 ## How do I use it?
 - Install Python 3 (I used 3.13, but I see no reason older versions shouldn't work)
 - Setup virtual environment and install required packages
-    - 'python -m venv ./.venv'
-    - Activate the virtual enviroment: 'source .venv/bin/activate'
-    - Install the required packages: 'pip install requests'
+    - `python -m venv ./.venv`
+    - Activate the virtual enviroment: `source .venv/bin/activate`
+    - Install the required packages: `pip install requests`
 - Get a TMDP API Key
-- Run the program: 'python3 main.py'
+- Run the program: `python3 main.py`
