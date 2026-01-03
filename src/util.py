@@ -1,0 +1,63 @@
+import re
+
+def printMovie(movieDict):
+    layout = [
+            ("Titel",       "title",           ""),
+            ("Original",    "original_title",  ""), # Falls vorhanden
+            ("Jahr",        "year",            ""),
+            ("Thema",       "topic",           ""),
+            ("Rating",      "rating",          "/ 10 ⭐"),
+            ("Dauer",       "duration",        " Sek."),
+            ("Sender",      "channel",         ""),
+            ("TMDB-ID",     "tmdbID",          ""),
+            ("Video",       "url_video_hd",    ""), # Bevorzugt HD
+            ("Video (SD)",  "url_video",       "")  # Fallback
+        ]
+
+    print("\n" + "═" * 80) # Schicke Trennlinie
+        
+    # 2. Iteration durch das Layout
+    for label, key, suffix in layout:
+        value = movieDict.get(key)
+        
+        # Nur drucken, wenn ein Wert existiert (nicht None und nicht leer)
+        if value:
+            # Formatierung:
+            # {label:<12} -> Reserviert 12 Zeichen Platz für das Label (linksbündig)
+            # {value}     -> Der eigentliche Wert
+            print(f" {label:<12} : {value}{suffix}")
+
+    # Beschreibung oft zu lang für eine Zeile, daher separat behandeln
+    desc = movieDict.get("description")
+    if desc:
+        print("-" * 80)
+        print(f" {desc[:200]}..." if len(desc) > 200 else f" {desc}")
+    
+    print("═" * 80 + "\n")
+
+
+def cleanTitle(title, cleaning_rules=None, verbose = False):
+    """
+    Bereinigt einen Filmtitel basierend auf modularen Regeln.
+    """
+    if cleaning_rules is None:
+        # Standard-Regeln, falls nichts übergeben wurde
+        cleaning_rules = [
+            r"\|.*",                  # Alles nach einem senkrechten Strich (oft Datumsangaben)
+            r"\(S\d+ / E\d+\).*",     # Staffel- und Episodeninfos wie (S01 / E02)
+            r"\(.*\)",                # Alles in Klammern (Zusatzinfos)
+            r"Video verfügbar.*",     # Verfügbarkeitshinweise
+            r"AD$|UT$|GS$",           # Kürzel am Ende: Audiodeskription, Untertitel, Gebärdensprache
+            r"\d{2}\.\d{2}\.\d{4}",   # Datumsformate (dd.mm.yyyy)
+            r"–.*",                   # Alles nach einem Gedankenstrich
+            r"[«»\"]"
+        ]
+
+    cleaned = title
+    
+    for pattern in cleaning_rules:
+        # Ersetzt das gefundene Muster durch einen leeren String
+        cleaned["title"] = re.sub(pattern, "", cleaned["title"], flags=re.IGNORECASE)
+        cleaned["title"] = cleaned["title"].strip()
+    
+    return cleaned
