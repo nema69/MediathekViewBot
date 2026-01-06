@@ -10,7 +10,7 @@ OMDB_API_KEY = "ddac1be6"
 JELLYFIN_API_KEY = "5ddd91b4e53b430a9efae52655d60f20"
 JELLYFIN_USER_ID = "1d5044ab79154b2f8a548ba9ede2aa2a"
 
-validChannels = ["ard", "srf", "arte", "zdf", "zdfneo"]
+validChannels = ["ard", "srf", "arte", "zdf", "zdfneo", "swr"]
 
 # Parse CLI Arguments
 parser = argparse.ArgumentParser(prog="MediathekViewBot",
@@ -22,7 +22,7 @@ parser.add_argument("-c", "--channel", choices=validChannels,help="Auswahl des z
 parser.add_argument("-t", "--topic")
 parser.add_argument("-r", "--min_rating")
 parser.add_argument("-p", "--min_popularity")
-parser.add_argument("-o", "--output_path")
+parser.add_argument("-o", "--output_path", default="~/Videos")
 
 def deduplicate_list(inputList, verbose = False):
     deduplicatedList = []
@@ -253,8 +253,6 @@ if __name__ == "__main__":
     moviesCulled = cullMovies(moviesRated, min_rating=min_rating, min_popularity=min_popularity, verbose=args.verbose)
     newToJelly = checkJellyfin(moviesCulled, "https://jellyfin.lsarebhan.de", JELLYFIN_API_KEY, JELLYFIN_USER_ID, verbose=True)
     
-    userList = []
-    for movie in newToJelly:
-        if(util.userConfirm(movie)):
-            userList.append(movie)
+    userList = util.confirmMovies(newToJelly)
+    dl.downloadMovieList(userList, args.output_path)
     writeLinkList(userList)

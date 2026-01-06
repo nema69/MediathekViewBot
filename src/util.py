@@ -1,5 +1,13 @@
 import re
 
+class Colors:
+    RED    = '\033[31m'
+    GREEN  = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE   = '\033[34m'
+    BOLD   = '\033[1m'
+    RESET  = '\033[0m'
+
 def printMovie(movieDict):
     layout = [
             ("Titel",       "title",           ""),
@@ -7,7 +15,8 @@ def printMovie(movieDict):
             ("Original",    "original_title",  ""), # Falls vorhanden
             ("Jahr",        "year",            ""),
             ("Thema",       "topic",           ""),
-            ("Rating",      "rating",          "/ 10 ⭐"),
+            ("Bewertung",   "rating",          "/10 ⭐"),
+            ("Beliebtheit", "popularity",      ""),
             ("Dauer",       "duration",        " Sek."),
             ("Sender",      "channel",         ""),
             ("TMDB-ID",     "tmdbID",          ""),
@@ -26,7 +35,7 @@ def printMovie(movieDict):
             # Formatierung:
             # {label:<12} -> Reserviert 12 Zeichen Platz für das Label (linksbündig)
             # {value}     -> Der eigentliche Wert
-            print(f" {label:<12} : {value}{suffix}")
+            print(f" {Colors.BOLD}{label:<12}{Colors.RESET} : {value}{suffix}")
 
     # Beschreibung oft zu lang für eine Zeile, daher separat behandeln
     desc = movieDict.get("description")
@@ -82,3 +91,10 @@ def userConfirm(movie):
         return True
     else:
         return False
+    
+def confirmMovies(movieList):
+    confirmedMovies =  []
+    for movie in movieList:
+        if userConfirm(movie):
+            confirmedMovies.append(movie)
+    return confirmedMovies
